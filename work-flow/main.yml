@@ -1,0 +1,19 @@
+---
+- name: flow
+  hosts: all
+  gather_facts: false
+
+  vars:
+    expect_result: "true"
+
+  tasks:
+    - debug:
+        msg: "hello world"
+
+    - command: ls /tmp
+    - name: assertion
+      assert:
+        that:
+          - "expect_result|bool == true"
+        success_msg: "successed."
+        fail_msg: "failed."

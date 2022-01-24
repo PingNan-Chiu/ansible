@@ -1,0 +1,19 @@
+---
+- set_fact:
+    output: "### Compare Result ###"
+
+- name: Split content to file list
+  set_fact:
+    file_list: "{{ content.split() }}"
+
+- name: Display file list
+  debug:
+    msg: "{{ file_list }}"
+
+- name: Compare file
+  include_tasks: compare_single.yml
+  loop: "{{ file_list }}"
+
+- name: Display output
+  debug:
+    var: output

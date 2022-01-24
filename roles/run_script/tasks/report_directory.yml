@@ -1,0 +1,10 @@
+---
+- name: Create directory
+  file:
+    path: "{{ dest_report_path }}"
+    state: directory
+    mode: 0755
+  connection: local
+  run_once: True
+  vars:
+    ansible_python_interpreter: /usr/bin/python3 

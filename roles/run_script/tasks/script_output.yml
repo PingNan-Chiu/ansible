@@ -1,0 +1,11 @@
+---
+- name: Report file with script output 
+  debug:
+    msg: "{{ (script_output.stdout | regex_search( src_report_regex, src_report_regex_index ))[0] | string }}"
+  register: report_file  
+
+- name: Fetch the report file to awx
+  fetch:
+    src: "{{ report_file.msg }}" 
+    dest: "{{ dest_report_path }}"
+    flat: yes

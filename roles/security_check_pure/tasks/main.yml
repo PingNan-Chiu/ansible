@@ -1,0 +1,73 @@
+---
+- name: Gathering services facts
+  service_facts:
+  tags:
+    - section1
+    - section2
+    - section3
+    - section4
+    - section5
+
+- name: Gather shell version
+  shell:
+    cmd: "{{ ansible_env.SHELL }} --version | head -n 1"
+  register: shell_version_result
+
+- name: Section 1 check
+  include_tasks: section_1.yml
+  tags:
+    - section1
+  
+- block:
+  - name: Section 2-1 check
+    include_tasks: section_2_1.yml
+
+  - name: Section 2-2 check
+    include_tasks: section_2_2.yml
+
+  - name: Section 2-3 check
+    include_tasks: section_2_3.yml
+
+  - name: Section 2-4 check
+    include_tasks: section_2_4.yml
+
+  - name: Section 2-5 check
+    include_tasks: section_2_5.yml
+
+  - name: Section 2-7 check
+    include_tasks: section_2_7.yml
+
+  - name: Section 2-8 check
+    include_tasks: section_2_8.yml
+
+  - name: Section 2-9 check
+    include_tasks: section_2_9.yml
+
+  - name: Section 2-10 check
+    include_tasks: section_2_10.yml
+
+  - name: Section 2-11 check
+    include_tasks: section_2_11.yml
+  
+  tags:
+    - section2
+
+- name: Section 3 check
+  include_tasks: section_3.yml
+  tags:
+    - section3
+
+- name: Section 4 check
+  include_tasks: section_4.yml
+  tags:
+    - section4
+
+- name: Section 5 check
+  include_tasks: section_5.yml
+  tags:
+    - section5
+
+- name: Generate security log
+  template:
+    src: "security_report.html"
+    dest: "{{ security_report_location }}/security_report_{{ inventory_hostname }}.html"

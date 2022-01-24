@@ -1,0 +1,37 @@
+---
+- name: Check Action
+  fail:
+    msg: "No action defined."
+  when: action|length == 0
+
+- name: Check packages
+  fail:
+    msg: "No packages defined."
+  when: packages|length == 0
+
+- set_fact:
+    action: "add"
+  when: action == 'install'
+
+- set_fact:
+    rollback: true
+    action: "add"
+  when: action == 'downgrade'
+
+- name: Convert packages string to package list
+  set_fact:
+    PACKAGE_LIST: "{{ packages.split(',') }}"
+
+- name: Install packages
+  yum:
+    name: "{{ PACKAGE_LIST }}"
+    state: present
+    update_cache: yes
+    allow_downgrade: "{{ rollback }}"
+  when: action == 'add'
+
+- name: Remove packages
+  yum:
+    name: "{{ PACKAGE_LIST }}"
+    state: absent
+  when: action == 'remove'

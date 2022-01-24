@@ -1,0 +1,10 @@
+---
+- name: NTPd function check...pre_task
+  set_fact:
+    section5_1_result: false
+    section5_2_result: false
+
+- name: NTPd function check...
+  set_fact:
+    section5_1_result: true
+  when: "'ntpd' in ansible_facts.services and ansible_facts.services['ntpd'].status == 'enabled' and ansible_facts.services['ntpd'].state == 'running'"

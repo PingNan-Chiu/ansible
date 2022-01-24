@@ -1,0 +1,23 @@
+---
+- set_fact:
+    output: "### OVERWRITED FILES ###"
+
+- name: Split content to file list
+  set_fact:
+    file_list: "{{ content.split() }}"
+
+- name: Split parameter to limit_file_list
+  set_fact:
+    limit_file_list: "{{ files.split(',') }}"
+
+- name: Check whether file is in file_list
+  include_tasks: check.yml
+  loop: "{{ limit_file_list }}"
+
+- name: Overwrite files
+  include_tasks: overwrite_single.yml
+  loop: "{{ limit_file_list }}"
+
+- name: Display output
+  debug:
+    var: output

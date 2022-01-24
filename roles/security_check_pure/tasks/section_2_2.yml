@@ -1,0 +1,14 @@
+---
+###
+- name: Section 2-2 Root account check
+  shell:
+    cmd: |
+      awk -F: '{if($3 == 0 && $1 != "root") {printf "%s\n", $1;}}' /etc/passwd
+  register: awk_result
+  
+# - debug:
+#     var: awk_result
+
+- name: Set Section2_2 result
+  set_fact:
+    section2_2_result: "{{ awk_result.stdout|length == 0 }}"

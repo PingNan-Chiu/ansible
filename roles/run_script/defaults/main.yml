@@ -1,0 +1,17 @@
+---
+script_file: ""
+script_name: "uid_check"
+script_path: ""
+script_args: ""
+
+# directory_find or script_output
+use_fetch_report: "directory_find"
+
+src_report_path: "/tmp"
+src_report_patterns: "*test*"
+src_report_regex: '(/.*)\r'
+src_report_regex_index: '\1'
+
+
+dest_report_home: "/tmp"
+dest_report_path: "{{ dest_report_home }}/{{ script_name }}/"

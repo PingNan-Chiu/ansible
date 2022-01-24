@@ -1,0 +1,39 @@
+---
+- name: copy file to remote
+  copy:
+    src: "files/{{ item }}"
+    dest: "/tmp/tempfile"
+    force: yes
+
+- name: get checksum
+  stat:
+    path: "/tmp/tempfile"
+    checksum_algorithm: sha256
+  register: fileA
+
+- name: get checksum
+  stat:
+    path: "{{ item }}"
+    checksum_algorithm: sha256
+  register: fileB
+
+- name: Set checksum
+  set_fact:
+    checksum: ""
+  when: " 'checksum' not in fileB.stat "
+
+- name: Set checksum
+  set_fact:
+    checksum: "{{ fileB.stat.checksum }}"
+  when: " 'checksum' in fileB.stat "
+
+- name: compare result and overwrite
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ item }}"
+  when: fileA.stat.checksum != checksum
+
+- name: output
+  set_fact:
+    output: "{{ output }}\n{{ item }} is overwrited."
+  when: fileA.stat.checksum != checksum

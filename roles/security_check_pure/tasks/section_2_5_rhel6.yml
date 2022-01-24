@@ -1,0 +1,55 @@
+---
+- name: Copy awk script for parsing to remote
+  copy:
+    src: files/parse_cracklib.awk
+    dest: /tmp/parse_cracklib.awk
+
+- name: Read pam_cracklib arguments from {{ system_auth_path }}
+  shell:
+    cmd: |
+      awk -f /tmp/parse_cracklib.awk {{ system_auth_path }}
+  register: awk_result
+  
+- name: Parsing JSON
+  set_fact:
+    cracklib_args: "{{ awk_result.stdout | from_json }}"
+
+# - name: Display
+#   debug:
+#     var: cracklib_args
+    
+- set_fact:
+    is_retry_valid: false
+
+- set_fact:
+    is_retry_valid: true
+  when: "'retry' in cracklib_args and cracklib_args['retry'] == '3'"
+
+- set_fact:
+    is_minlen_valid: false
+
+- set_fact:
+    is_minlen_valid: true
+  when: "'minlen' in cracklib_args and cracklib_args['minlen'] == '8'"
+
+- set_fact:
+    is_dcredit_valid: false
+
+- set_fact:
+    is_dcredit_valid: true
+  when: "'dcredit' in cracklib_args and cracklib_args['dcredit'] == '-1'"
+
+- set_fact:
+    is_lcredit_valid: false
+
+- set_fact:
+    is_lcredit_valid: true
+  when: "'lcredit' in cracklib_args and cracklib_args['lcredit'] == '-1'"
+  
+- set_fact:
+    section2_5_result: true
+  when: "is_retry_valid and is_minlen_valid and is_dcredit_valid"
+
+- set_fact:
+    section2_6_result: true
+  when: "is_retry_valid and is_minlen_valid and is_lcredit_valid"

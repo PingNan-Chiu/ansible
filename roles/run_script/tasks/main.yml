@@ -1,0 +1,10 @@
+---
+- include_tasks: run_script.yml
+
+- include_tasks: report_directory.yml
+
+- include_tasks: directory_find.yml
+  when: use_fetch_report == "directory_find"
+  
+- include_tasks: script_output.yml
+  when: use_fetch_report == "script_output"

@@ -1,0 +1,11 @@
+---
+accounts:
+  - group11:
+    - name: user11
+    - name: user12
+  - group12:
+    - name: user21
+    - name: user22
+  - group13:
+    - name: user31
+    - name: user32

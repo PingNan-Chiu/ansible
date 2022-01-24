@@ -1,0 +1,45 @@
+---
+- name: Create folder needed by security_ck_new.sh
+  file:
+    path: /var/SP_management/security_ck/record
+    owner: root
+    group: wheel
+    state: directory
+
+- name: Copy script to the remote system
+  copy:
+    src: files/security_ck_new.sh
+    dest: /tmp/security_ck_new.sh
+    owner: root
+    group: wheel
+    mode: 0755
+
+# - name: Motify sshd_config
+#   lineinfile:
+#     path: /etc/ssh/sshd_config
+#     line: DenyUsers 
+
+# - name: Run command with 'CRON','USER','GROUP'
+#   become_user: test
+#   shell: /tmp/security_ck.sh "{{ cron_var }}" "{{ user_var }}" "{{ GROUP_var }}" "{{ sudo_pass }}"
+#   register: securitylog
+
+- name: Run Security check
+  shell:
+    cmd: "/tmp/security_ck_new.sh"
+    warn: false
+  register: security_log
+
+# - name: Security Log
+#   debug:
+#     msg: "{{ security_log.stdout }}"
+
+- name: Generate security log
+  template:
+    src: "security_log.txt.j2"
+    dest: "/tmp/security_log.txt"
+
+- name: Fetch security log
+  fetch:
+    src: "/tmp/security_log.txt"
+    dest: "logs/security_log.txt"

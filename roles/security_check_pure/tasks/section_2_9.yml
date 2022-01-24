@@ -1,0 +1,35 @@
+---
+- name: Section 2-9 Session timeout setting check.. pre_task
+  set_fact:
+    section2_9_result: false
+    
+# - name: Check whether 'TMOUT=900' is existed
+#   shell:
+#     cmd: |
+#       awk -F= '/^TMOUT=/{print $2;}' /etc/profile
+#   register: tmout_value
+
+- name: Check whether 'TMOUT=900' is existed
+  shell:
+    cmd: |
+      grep '^TMOUT=900' /etc/profile
+  ignore_errors: true
+  register: grep_tmout_result
+
+- name: Check whether 'readonly TMOUT' is existed
+  shell:
+    cmd: |
+      grep 'readonly TMOUT' /etc/profile
+  ignore_errors: true
+  register: grep_readonly_tmout_result
+
+- name: Check whether 'export TMOUT' is existed
+  shell:
+    cmd: |
+      grep '^export TMOUT' /etc/profile
+  ignore_errors: true
+  register: grep_export_tmout_result
+  
+- name: Evaluate result according to previous checks
+  set_fact:
+    section2_9_result: "{{ grep_tmout_result.rc == 0 and grep_readonly_tmout_result.rc == 0 and grep_export_tmout_result.rc == 0 }}"

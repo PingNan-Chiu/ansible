@@ -1,0 +1,14 @@
+---
+###
+- name: Section 2-3 Guest account check
+  shell:
+    cmd: |
+      awk '/^guest/{print $1}' /etc/passwd
+  register: awk_result
+  
+# - debug:
+#     var: grep_result
+
+- name: Set Section2_3 result
+  set_fact:
+    section2_3_result: "{{ awk_result.stdout|length == 0 }}"

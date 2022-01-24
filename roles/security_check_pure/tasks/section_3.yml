@@ -1,0 +1,205 @@
+---
+###
+- name: Section 3 Files, folder, programs management - /etc/passwd
+  stat:
+    path: /etc/passwd
+  register: st
+  
+- set_fact:
+    section3_1_result: true
+
+- set_fact:
+    section3_1_result: false
+  when: st.stat.pw_name != 'root' and st.stat.mode != '0644'
+
+- name: Section 3 Files, folder, programs management - /etc/group
+  stat:
+    path: /etc/group
+  register: st
+  
+- set_fact:
+    section3_2_result: true
+
+- set_fact:
+    section3_2_result: false
+  when: st.stat.pw_name != 'root' and st.stat.mode != '0644'
+
+- name: Section 3 Files, folder, programs management - /etc/hosts
+  stat:
+    path: /etc/hosts
+  register: st
+  
+- set_fact:
+    section3_3_result: true
+
+- set_fact:
+    section3_3_result: false
+  when: st.stat.pw_name != 'root' and st.stat.mode != '0664'
+
+- name: Section 3 Files, folder, programs management - /etc/inetd.conf
+  stat:
+    path: /etc/inetd.conf
+  register: st
+  
+- set_fact:
+    section3_4_result: true
+    section3_4_not_apply: false
+
+- set_fact:
+    section3_4_not_apply: true
+  when: not st.stat.exists
+
+- set_fact:
+    section3_4_result: false
+  when: st.stat.exists and st.stat.pw_name != 'root' and st.stat.mode != '0644'
+
+- name: Section 3 Files, folder, programs management - /etc/named.conf
+  stat:
+    path: /etc/named.conf
+  register: st
+  
+- set_fact:
+    section3_5_result: true
+    section3_5_not_apply: false
+
+- set_fact:
+    section3_5_not_apply: true
+  when: not st.stat.exists
+
+- set_fact:
+    section3_5_result: false
+  when: st.stat.exists and st.stat.pw_name != 'root' and st.stat.mode != '0644'
+
+- name: Section 3 Files, folder, programs management - /etc/resolv.conf
+  stat:
+    path: /etc/resolv.conf
+  register: st
+  
+- set_fact:
+    section3_6_result: true
+    section3_6_not_apply: false
+
+- set_fact:
+    section3_6_not_apply: true
+  when: st.stat.exists
+
+- set_fact:
+    section3_6_result: false
+  when: st.stat.exists and st.stat.pw_name != 'root' and st.stat.mode != '0664'
+  
+- name: Section 3 Files, folder, programs management - /usr/bin/ftp
+  stat:
+    path: /usr/bin/ftp
+  register: st
+  
+- set_fact:
+    section3_7_result: true
+    section3_7_not_apply: false
+
+- set_fact:
+    section3_7_not_apply: true
+  when: not st.stat.exists
+
+- set_fact:
+    section3_7_result: false
+  when: st.stat.exists and st.stat.pw_name != 'root' and st.stat.mode != '0755'
+
+- name: Section 3 Files, folder, programs management - /bin/netstat
+  stat:
+    path: /bin/netstat
+  register: st
+  
+- set_fact:
+    section3_8_result: true
+    section3_8_not_apply: false
+
+- set_fact:
+    section3_8_not_apply: true
+  when: not st.stat.exists
+
+- set_fact:
+    section3_8_result: false
+  when: st.stat.exists and st.stat.pw_name != 'root' and st.stat.mode != '0755'
+
+- name: Section 3 Files, folder, programs management - /sbin/ifconfig
+  stat:
+    path: /sbin/ifconfig
+  register: st
+  
+- set_fact:
+    section3_9_result: true
+    section3_9_not_apply: false
+
+- set_fact:
+    section3_9_not_apply: true
+  when: not st.stat.exists
+
+- set_fact:
+    section3_9_result: false
+  when: st.stat.exists and st.stat.pw_name != 'bin' and st.stat.mode != '0755'
+
+- name: Section 3 Files, folder, programs management - /tmp
+  set_fact:
+    awk_cmd_check_mount_param: "awk '{if(index($1,\"nosuid\")>0 && index($1,\"nodev\")>0){print \"true\";}else{print \"false\";}}'"
+
+- shell:
+    cmd: mount | awk -F\  '/\/tmp/{print $6;}'
+  register: awk_find_result
+
+- shell:
+    cmd: "echo '{{ awk_find_result.stdout }}' | {{ awk_cmd_check_mount_param }}"
+  register: awk_result
+
+- set_fact:
+    section3_10_result: false
+    section3_10_not_apply: false
+
+- set_fact:
+    section3_10_result: true
+  when: awk_result.stdout == 'true'
+
+- set_fact:
+    section3_10_not_apply: true
+  when: awk_find_result|length == 0
+
+- name: Section 3 Files, folder, programs management - /var/tmp
+  shell:
+    cmd: mount | awk -F\  '/\/var\/tmp/{print $6;}'
+  register: awk_find_result
+
+- shell:
+    cmd: "echo '{{ awk_find_result.stdout }}' | {{ awk_cmd_check_mount_param }}"
+  register: awk_result
+
+- set_fact:
+    section3_11_result: false
+    section3_11_not_apply: false
+
+- set_fact:
+    section3_11_result: true
+  when: awk_result.stdout == 'true'
+
+- set_fact:
+    section3_11_not_apply: true
+  when: awk_find_result|length == 0
+
+- name: Section 3 Files, folder, programs management - /dev/shm
+  shell:
+    cmd: mount | awk -F\  '/\/dev\/shm/{print $6;}'
+  register: awk_find_result
+
+- shell:
+    cmd: "echo '{{ awk_find_result.stdout }}' | {{ awk_cmd_check_mount_param }}"
+  register: awk_result
+
+- set_fact:
+    section3_12_result: false
+    section3_12_not_apply: false
+
+- set_fact:
+    section3_12_result: true
+  when: awk_result.stdout == 'true'
+
+- set_fact:
+    section3_12_not_apply: true
+  when: awk_find_result|length == 0

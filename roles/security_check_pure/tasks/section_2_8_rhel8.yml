@@ -1,0 +1,26 @@
+---
+- name: Copy awk script for parsing to remote
+  copy:
+    src: files/parse_faillock.awk
+    dest: /tmp/parse_faillock.awk
+
+- name: Read pam_faillock arguments from {{ password_auth_path }}
+  shell:
+    cmd: |
+      awk -f /tmp/parse_faillock.awk {{ password_auth_path }}
+  register: awk_result
+  
+- name: Parsing JSON
+  set_fact:
+    faillock_args: "{{ awk_result.stdout | from_json }}"
+
+- set_fact:
+    is_unlock_time_valid: false
+
+- set_fact:
+    is_unlock_time_valid: true
+  when: "'unlock_time' in faillock_args and faillock_args['unlock_time'] == '1800'"
+
+- set_fact:
+    section2_8_result: true
+  when: "is_unlock_time_valid"

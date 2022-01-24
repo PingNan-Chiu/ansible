@@ -1,0 +1,25 @@
+---
+###
+- name: Section 2-7 pam_unix .so setting check..Pre-Task
+  set_fact:
+    section2_7_result: false
+ 
+- name: Copy awk script for parsing to remote
+  copy:
+    src: files/parse_unix.awk
+    dest: /tmp/parse_unix.awk
+
+- name: Read pam_unix arguments from {{ system_auth_path }}
+  shell:
+    cmd: |
+      awk -f /tmp/parse_unix.awk {{ system_auth_path }}
+  register: awk_result
+  
+- name: Parsing JSON
+  set_fact:
+    unix_args: "{{ awk_result.stdout | from_json }}"
+
+- name: Check 'remember=6'
+  set_fact:
+    section2_7_result: true
+  when: "'remember' in unix_args and unix_args.remember == '6'"

@@ -1,0 +1,17 @@
+---
+- name: Find the report file
+  find:
+    paths: "{{ src_report_path }}"
+    patterns: "{{ src_report_patterns }}"
+    recurse: no
+    age: -1d
+    age_stamp: ctime
+  register: report_files
+
+- name: Fetch the report file to awx
+  fetch:
+    src: "{{ report_files.files[-1].path }}"
+    #src: "{{ item.path }}"
+    dest: "{{ dest_report_path }}"
+    flat: yes
+  #with_items: "{{ report_files.files }}"

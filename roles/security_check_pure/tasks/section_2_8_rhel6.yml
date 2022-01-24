@@ -1,0 +1,26 @@
+---
+- name: Copy awk script for parsing to remote
+  copy:
+    src: files/parse_tally2.awk
+    dest: /tmp/parse_tally2.awk
+
+- name: Read pam_tally2 arguments from {{ password_auth_path }}
+  shell:
+    cmd: |
+      awk -f /tmp/parse_tally2.awk {{ password_auth_path }}
+  register: awk_result
+  
+- name: Parsing JSON
+  set_fact:
+    tally2_args: "{{ awk_result.stdout | from_json }}"
+
+- set_fact:
+    is_unlock_time_valid: false
+
+- set_fact:
+    is_unlock_time_valid: true
+  when: "'unlock_time' in tally2_args and tally2_args['unlock_time'] == '1800'"
+
+- set_fact:
+    section2_8_result: true
+  when: "is_unlock_time_valid"

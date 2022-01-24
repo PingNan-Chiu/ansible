@@ -1,0 +1,15 @@
+---
+# - debug:
+#     var: ansible_facts.services
+    
+- name: Section 4 - System funtion check 
+  include_tasks: section_4_rhel6.yml
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "6"
+
+- name: Section 4 - System funtion check 
+  include_tasks: section_4_rhel7.yml
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+
+- name: Section 4 - System funtion check 
+  include_tasks: section_4_rhel8.yml
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "8"

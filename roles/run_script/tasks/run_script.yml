@@ -1,0 +1,7 @@
+---
+- name: Run script
+  script: "{{ script_path }}/{{ script_file }} {{ script_args }}"
+  args:
+    executable: /bin/bash
+  register: script_output
+  become: yes  

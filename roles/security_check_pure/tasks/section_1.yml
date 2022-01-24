@@ -1,0 +1,18 @@
+---
+- name: "Section 1: Remove system information from login screen"
+  shell:
+    cmd: "grep 'Unauthorized use of this system is prohibited' /etc/motd"
+  ignore_errors: true
+  register: section_1_grep_output
+  
+- name: Set fact if successed
+  set_fact:
+    section1_result: true
+    section1_fail_count: 0
+  when: section_1_grep_output.stdout|length > 0
+
+- name: Set fact if failed
+  set_fact:
+    section1_result: false
+    section1_fail_count: 1
+  when: section_1_grep_output.stdout|length == 0

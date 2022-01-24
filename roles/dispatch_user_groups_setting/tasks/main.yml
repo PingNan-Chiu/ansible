@@ -1,0 +1,136 @@
+---
+- name: extract name from accounts
+  set_fact:
+    account_list: "{{ accounts | json_query('[*].name') | join(',')}}"
+
+- name: set awk_group_cmd
+  set_fact:
+    # awk_group_cmd: "awk -F: '{if($3>={{ gid_range_start }} && $3<{{ gid_range_end }} && index(\"{{ excluded_groups_ | join(',') }}\", $1)==0 && index(\"{{ excluded_accounts | join(',') }}\", $1)==0 && index(\"{{ account_list }}\", $1)==0) printf \"%s\\n\", $1;}' /etc/group > {{ host_groups }}"
+    awk_group_cmd: "awk -F: '/^i[0-9]{7,8}/{ print $1;}' /etc/group > {{ host_groups }}"
+    
+- name: set awk_cmd
+  set_fact:
+    # awk_cmd: "awk -F: '{if($3>={{ uid_range_start }} && $3<{{ uid_range_end }} && index(\"{{ excluded_accounts | join(',') }}\", $1)==0) printf \"%s\\n\", $1;}' /etc/passwd > {{ host_accounts }}"
+    awk_cmd: "awk -F: '/^i[0-9]{7,8}/{ print $1; }' /etc/passwd > {{ host_accounts }}"
+
+- name: Show debug information
+  block:
+  - name: show awk_group_cmd
+    debug:
+      msg: "awk_group_cmd={{ awk_group_cmd }}"
+
+  - name: show awk_cmd
+    debug:
+      msg: "awk_cmd={{ awk_cmd }}"
+
+  - name: debug
+    debug:
+      msg: "{{ item.name }}"
+    loop: "{{ accounts }}"
+
+  - name: Display accounts
+    debug:
+      var: accounts
+
+  - name: debugging
+    fail:
+      msg: "stop"
+  when: debug
+
+- name: Synchornize groups
+  block:
+  - name: Generate expected groups
+    template:
+      src: "expected_groups.txt"
+      dest: "{{ expected_groups }}"
+  - name: Generate groups on host using awesome awk
+    shell:
+      cmd: "{{ awk_group_cmd }}"
+  - name: Get Subtraction between expected_groups.txt and host_groups.txt (New group)
+    shell:
+      cmd: "grep -F -v -f {{ host_groups }} {{ expected_groups }}"
+    register: subtraction_new
+    ignore_errors: yes
+  - name: Add new groups
+    group:
+      gid: "{{ item.gid }}"
+      name: "{{ item.name }}"
+      state: present
+    loop: "{{ groups_ }}"
+    when: item['name'] in subtraction_new.stdout_lines
+
+- name: Synchornize users
+  block:
+  - name: Generate expected accounts
+    template:
+      src: "expected_accounts.txt"
+      dest: "{{ expected_accounts }}"
+
+  - name: Generate accounts on host using awesome awk
+    shell:
+      cmd: "{{ awk_cmd }}"
+
+  - name: Get Subtraction between expected_accounts.txt and host_accounts.txt (New users)
+    shell:
+      cmd: "grep -F -v -f {{ host_accounts }} {{ expected_accounts }}"
+    register: subtraction_new
+    ignore_errors: yes
+    
+  # - name: debug
+  #   debug:
+  #     msg: "{{ item.name }}"
+  #   loop: "{{ accounts }}"
+
+  # - name: debug
+  #   debug:
+  #     msg: "{{ item }}"
+  #   loop: "{{ accounts }}"
+  #   when: item['name'] in subtraction_new.stdout_lines
+
+  - name: Add new users
+    user:
+      name: "{{ item.name }}"
+      comment: "Test playbook"
+      groups: "{{ item.groups }}"
+      group: "{{ item.group }}"
+      append: yes
+      state: present
+    loop: "{{ accounts }}"
+    when: item['name'] in subtraction_new.stdout_lines
+
+  - name: Generate accounts on host using awesome awk again.
+    shell:
+      cmd: "{{ awk_cmd }}"
+
+  - name: Get Subtraction between expected_accounts.txt and host_accounts.txt (Users needed to remove)
+    shell:
+      cmd: "grep -F -v -f {{ expected_accounts }} {{ host_accounts }}"
+    register: subtraction_remove
+    ignore_errors: yes
+  
+  # - name: debug
+  #   debug:
+  #     var: subtraction_remove.stdout_lines
+    
+  - name: Remove users
+    user:
+      name: "{{ item }}"
+      state: absent
+    loop: "{{ subtraction_remove.stdout_lines }}"
+    
+- name: Remove groups
+  block:
+  - name: Generate groups on host using awesome awk again
+    shell:
+      cmd: "{{ awk_group_cmd }}"
+  - name: Get Subtraction between expected_accounts.txt and host_accounts.txt (Users needed to remove)
+    shell:
+      cmd: "grep -F -v -f {{ expected_groups }} {{ host_groups }}"
+    register: subtraction_remove
+    ignore_errors: yes
+  - name: Remove groups
+    group:
+      name: "{{ item }}"
+      state: absent
+    loop: "{{ subtraction_remove.stdout_lines }}"
+    ignore_errors: yes

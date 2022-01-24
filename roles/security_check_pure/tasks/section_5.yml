@@ -1,0 +1,12 @@
+---
+- name: Section 5 - System and Network security management
+  include_tasks: section_5_rhel6.yml
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "6"
+
+- name: Section 5 - System and Network security management
+  include_tasks: section_5_rhel7.yml
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+
+- name: Section 5 - System and Network security management
+  include_tasks: section_5_rhel8.yml
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "8"

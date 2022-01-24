@@ -1,0 +1,55 @@
+---
+- name: Copy awk script for parsing to remote
+  copy:
+    src: files/parse_pwquality.awk
+    dest: /tmp/parse_pwquality.awk
+
+- name: Read pam_pwquality arguments from {{ system_auth_path }}
+  shell:
+    cmd: |
+      awk -f /tmp/parse_pwquality.awk {{ system_auth_path }}
+  register: awk_result
+  
+- name: Parsing JSON
+  set_fact:
+    pwquality_args: "{{ awk_result.stdout | from_json }}"
+
+# - name: Display
+#   debug:
+#     var: pwquality_args
+    
+- set_fact:
+    is_retry_valid: false
+
+- set_fact:
+    is_retry_valid: true
+  when: "'retry' in pwquality_args and pwquality_args['retry'] == '3'"
+
+- set_fact:
+    is_minlen_valid: false
+
+- set_fact:
+    is_minlen_valid: true
+  when: "'minlen' in pwquality_args and pwquality_args['minlen'] == '8'"
+
+- set_fact:
+    is_dcredit_valid: false
+
+- set_fact:
+    is_dcredit_valid: true
+  when: "'dcredit' in pwquality_args and pwquality_args['dcredit'] == '-1'"
+
+- set_fact:
+    is_lcredit_valid: false
+
+- set_fact:
+    is_lcredit_valid: true
+  when: "'lcredit' in pwquality_args and pwquality_args['lcredit'] == '-1'"
+  
+- set_fact:
+    section2_5_result: true
+  when: "is_retry_valid and is_minlen_valid and is_dcredit_valid"
+
+- set_fact:
+    section2_6_result: true
+  when: "is_retry_valid and is_minlen_valid and is_lcredit_valid"

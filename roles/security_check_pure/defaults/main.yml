@@ -1,0 +1,4 @@
+---
+security_report_location: "/tmp"
+system_auth_path: "/etc/pam.d/system-auth"
+password_auth_path: "/etc/pam.d/password-auth"

@@ -1,0 +1,11 @@
+---
+- name: Syslog function check...pre_task
+  set_fact:
+    section4_1_result: false
+
+- name: Syslog function check...
+  set_fact:
+    section4_1_result: true
+  when: "'rsyslog.service' in ansible_facts.services and ansible_facts.services['rsyslog.service'].status == 'enabled' and ansible_facts.services['rsyslog.service'].state == 'running'"
+
+#  when: "'rsyslog.service' in ansible_facts.services and 'syslog.service' in ansible_facts.services and ansible_facts.services['rsyslog.service'].status == 'enabled' and ansible_facts.services['syslog.service'].status == 'enabled' and ansible_facts.services['rsyslog.service'].state == 'running' and ansible_facts.services['syslog.service'].state == 'running'"

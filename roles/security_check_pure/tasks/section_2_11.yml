@@ -1,0 +1,51 @@
+---
+- name: Section 2-11 Root login via FTP setting check.. 
+  set_fact:
+    section2_11_result: false
+
+# 設定變數
+# RHEL6 是使用 sysv，服務名稱後面沒有 ".service"
+# RHEL7/RHEL8 使用 systemd，服務名稱後面有 ".service"
+- set_fact:
+    vsftpd_name: "vsftpd"
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "6"
+
+- set_fact:
+    vsftpd_name: "vsftpd.service"
+  when: 'ansible_distribution == "RedHat" and ansible_distribution_major_version in ["7", "8"]'
+
+- set_fact:
+    proftpd_name: "proftpd"
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "6"
+
+- set_fact:
+    proftpd_name: "proftpd.service"
+  when: 'ansible_distribution == "RedHat" and ansible_distribution_major_version in ["7", "8"]'
+
+# - name: Checking vsftpd service status
+#   set_fact:
+#     section2_11_result: true
+#   when: "vsftpd_name in ansible_facts.services and ansible_facts.services[vsftpd_name].status == 'enabled' and ansible_facts.services[vsftpd_name].state == 'running'"
+
+# 有安裝 vsftpd，僅檢查設定內是否禁止了 root
+# 不檢查服務是否執行
+- name: Check vsftpd if it is existed
+  block:
+  - name: Checking vsftpd users, root is not allowed - pre_task
+    shell:
+      cmd: grep '^root' /etc/vsftpd/ftpusers
+    ignore_errors: true
+    register: grep_result
+
+  - name: Checking vsftpd users, root is not allowed
+    set_fact:
+      section2_11_result: true
+    when: grep_result|length > 0
+
+  when: "vsftpd_name in ansible_facts.services"
+
+# 只要有 proftpd，就判定不符合檢核
+- name: Checking proftpd
+  set_fact:
+    section2_11_result: false
+  when: "proftpd_name in ansible_facts.services and ansible_facts.services[proftpd_name].status == 'enabled' and ansible_facts.services[proftpd_name].state == 'running'"

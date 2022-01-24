@@ -1,0 +1,15 @@
+---
+###
+- name: Section 2-4 User UMASK setting check (/etc/login.defs)
+  shell:
+    cmd: |
+      awk 'BEGIN {FS=" "};/^UMASK/{print $2;}' /etc/login.defs
+  register: awk_result
+  
+- name: Display current UMASK
+  debug:
+    msg: "UMASK={{awk_result.stdout}}"
+
+- name: Set Section2_4 result
+  set_fact:
+    section2_4_result: "{{ awk_result.stdout|length > 0 and awk_result.stdout == '027' }}"

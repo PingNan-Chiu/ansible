@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全檢核表</title>
+    <style>
+    .col_header_title { width: 10%; }
+    .col_header_content { width: 40%; }
+    .col_no { width: 5%; }
+    .col_purpose { width: 20%; }
+    .col_item_and_method { width: 35%; }
+    .col_result { width: 10%; }
+    .col_desc { width: 30%; }
+    .alert { color: red; font-weight: bold;}
+    </style>
+</head>
+<body>
+    <h1>主機資訊</h1>
+    <table>
+        <tr>
+            <td class="col_header_title">主機：</td>
+            <td class="col_header_content">{{ inventory_hostname }}</td>
+            <td class="col_header_title">目前報表版本：</td>
+            <td class="col_header_content">Ver 4.1</td>
+        </tr>
+        <tr>
+            <td class="col_header_title">日期：</td>
+            <td class="col_header_content">{{ ansible_date_time.date }} {{ ansible_date_time.time }}</td>
+            <td class="col_header_title">主機 Shell 版本：</td>
+            <td class="col_header_content">{{ shell_version_result.stdout }}</td>
+        </tr>
+    </table>
+
+   <h1>移除登錄畫面上的系統資訊</h1>
+   <table border="1">
+       <tr>
+           <th class="col_no">編號</th>
+           <th class="col_purpose">檢核目的</th>
+           <th class="col_item_and_method">檢核項目與方式</th>
+           <th class="col_result">檢核結果</th>
+           <th class="col_desc">說明</th>
+        </tr>
+       <tr>
+           <td>1</td>
+           <td>避免登錄畫面之系統相關資訊遭不當利用</td>
+           <td></td>
+           <td>
+               {% if section1_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+   </table> 
+   
+   <h1>使用者安全管理</h1>
+   <table border="1">
+       <tr>
+           <th class="col_no">編號</th>
+           <th class="col_purpose">檢核目的</th>
+           <th class="col_item_and_method">檢核項目與方式</th>
+           <th class="col_result">檢核結果</th>
+           <th class="col_desc">說明</th>
+        </tr>
+       <tr>
+           <td>1</td>
+           <td>設定良好的密碼政策，維持良好的密碼品質與強度，以避免被輕易地猜中或破解</td>
+           <td></td>
+           <td>
+               {% if section2_1_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>2</td>
+           <td>檢視root帳號及具root權限的帳號之控管是否適當，以避免影響系統整體之安全性</td>
+           <td></td>
+           <td>
+               {% if section2_2_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>3</td>
+           <td>檢視系統中其他特殊帳號之管理是否適當，以避免非授權存取之風險</td>
+           <td></td>
+           <td>
+               {% if section2_3_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>4</td>
+           <td>避免使用者自行建立之檔案遭誤用或未授權存取之風險</td>
+           <td></td>
+           <td>
+               {% if section2_4_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>5</td>
+           <td>帳號與存取控制，密碼必須至少包含數字個數</td>
+           <td></td>
+           <td>
+               {% if section2_5_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>6</td>
+           <td>帳號與存取控制，密碼必須至少包含數字個數</td>
+           <td></td>
+           <td>
+               {% if section2_6_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>7</td>
+           <td>帳號與存取控制，密碼歷程不可與前幾次相同</td>
+           <td></td>
+           <td>
+               {% if section2_7_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>8</td>
+           <td>帳號與存取控制，密碼錯誤3次將鎖定30分鐘</td>
+           <td></td>
+           <td>
+               {% if section2_8_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>9</td>
+           <td>檢查是否設定Session Timeout保護措施，以避免系統使用者長時間離開時系統遭盜用或誤用之風險</td>
+           <td></td>
+           <td>
+               {% if section2_9_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>10</td>
+           <td>限制管理者帳號ssh遠端登入</td>
+           <td></td>
+           <td>
+               {% if section2_10_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>11</td>
+           <td>限制root ftp遠端登入</td>
+           <td></td>
+           <td>
+               {% if section2_11_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+   </table> 
+
+   <h1>檔案、目錄和程式之管理</h1>
+   <table border="1">
+       <tr>
+           <th class="col_no">編號</th>
+           <th class="col_purpose">檢核目的</th>
+           <th class="col_item_and_method">檢核項目與方式</th>
+           <th class="col_result">檢核結果</th>
+           <th class="col_desc">說明</th>
+        </tr>
+       <tr>
+           <td>1</td>
+           <td>確認/etc/passwd權限是否已受到適當控管,以避免非授權存取</td>
+           <td></td>
+           <td>
+               {% if section3_1_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>2</td>
+           <td>確認/etc/group權限是否已受到適當控管,以避免非授權存取</td>
+           <td></td>
+           <td>
+               {% if section3_2_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>3</td>
+           <td>確認/etc/hosts權限是否已受到適當控管,以避免非授權存取</td>
+           <td></td>
+           <td>
+               {% if section3_3_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>4</td>
+           <td>確認/etc/inetd.conf權限是否已受到適當控管,以避免非授權存取</td>
+           <td></td>
+           <td>
+               {% if section3_4_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               {% endif %}
+               {% if section3_4_not_apply %}
+               <span>☑ 不適用</span>
+               {% else %}
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>5</td>
+           <td>確認/etc/named.conf權限是否已受到適當控管,以避免非授權存取</td>
+           <td></td>
+           <td>
+               {% if section3_5_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               {% endif %}
+               {% if section3_5_not_apply %}
+               <span>☑ 不適用</span>
+               {% else %}
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>6</td>
+           <td>確認/etc/resolv.conf權限是否已受到適當控管,以避免非授權存取</td>
+           <td></td>
+           <td>
+               {% if section3_6_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               {% endif %}
+               {% if section3_6_not_apply %}
+               <span>☑ 不適用</span>
+               {% else %}
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>7</td>
+           <td>確認/usr/bin/ftp權限是否已受到適當控管,以避免非授權存取</td>
+           <td></td>
+           <td>
+               {% if section3_7_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               {% endif %}
+               {% if section3_7_not_apply %}
+               <span>☑ 不適用</span>
+               {% else %}
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>8</td>
+           <td>確認/bin/netstat權限是否已受到適當控管,以避免非授權存取</td>
+           <td></td>
+           <td>
+               {% if section3_8_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               {% endif %}
+               {% if section3_8_not_apply %}
+               <span>☑ 不適用</span>
+               {% else %}
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>9</td>
+           <td>確認/sbin/ifconfig權限是否已受到適當控管,以避免非授權存取</td>
+           <td></td>
+           <td>
+               {% if section3_9_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               {% endif %}
+               {% if section3_9_not_apply %}
+               <span>☑ 不適用</span>
+               {% else %}
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>10</td>
+           <td>確認 /tmp 目錄建立安全性管控機制，防止惡意程式攻擊</td>
+           <td></td>
+           <td>
+               {% if section3_10_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               {% endif %}
+	       {% if section3_10_not_apply %}
+               <span>☑ 不適用</span>
+	       {% else %}
+               <span>☐ 不適用</span>
+	       {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>11</td>
+           <td>確認 /var/tmp 目錄建立安全性管控機制，防止惡意程式攻擊</td>
+           <td></td>
+           <td>
+               {% if section3_11_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               {% endif %}
+	       {% if section3_11_not_apply %}
+               <span>☑ 不適用</span>
+	       {% else %}
+               <span>☐ 不適用</span>
+	       {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>12</td>
+           <td>確認 /dev/shm 目錄建立安全性管控機制，防止惡意程式攻擊</td>
+           <td></td>
+           <td>
+               {% if section3_12_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               {% endif %}
+	       {% if section3_12_not_apply %}
+               <span>☑ 不適用</span>
+	       {% else %}
+               <span>☐ 不適用</span>
+	       {% endif %}
+           </td>
+           <td></td>
+       </tr>
+   </table> 
+
+   <h1>系統稽核功能</h1>
+   <table border="1">
+       <tr>
+           <th class="col_no">編號</th>
+           <th class="col_purpose">檢核目的</th>
+           <th class="col_item_and_method">檢核項目與方式</th>
+           <th class="col_result">檢核結果</th>
+           <th class="col_desc">說明</th>
+        </tr>
+       <tr>
+           <td>1</td>
+           <td>確認是否已開啟syslog功能</td>
+           <td></td>
+           <td>
+               {% if section4_1_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+    </table>
+
+   <h1>系統及網路服務的安全管理</h1>
+   <table border="1">
+       <tr>
+           <th class="col_no">編號</th>
+           <th class="col_purpose">檢核目的</th>
+           <th class="col_item_and_method">檢核項目與方式</th>
+           <th class="col_result">檢核結果</th>
+           <th class="col_desc">說明</th>
+        </tr>
+       <tr>
+           <td>1</td>
+           <td>確認NTPD對時功能已啟用</td>
+           <td></td>
+           <td>
+               {% if section5_1_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+       <tr>
+           <td>2</td>
+           <td>確認防毒軟體安裝並啟用</td>
+           <td></td>
+           <td>
+               {% if section5_2_result %}
+               <span>☑ 符合</span>
+               <span>☐ 不符合</span>
+               <span>☐ 不適用</span>
+               {% else %}
+               <span>☐ 符合</span>
+               <span class="alert">☑ 不符合</span>
+               <span>☐ 不適用</span>
+               {% endif %}
+           </td>
+           <td></td>
+       </tr>
+    </table>
+</body>
+</html>

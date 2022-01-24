@@ -1,0 +1,10 @@
+---
+expected_accounts: "/tmp/expected_accounts.txt"
+host_accounts: "/tmp/host_accounts.txt"
+expected_groups: "/tmp/expected_groups.txt"
+host_groups: "/tmp/host_groups.txt"
+uid_range_start: 1001
+uid_range_end: 65500
+gid_range_start: 1001
+gid_range_end: 65500
+excluded_groups: []

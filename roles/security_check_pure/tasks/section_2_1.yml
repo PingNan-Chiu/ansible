@@ -1,0 +1,66 @@
+---
+###
+- name: Section 2-1 Password policy check - Read /etc/login.defs - PASS_MAX_DAYS
+  shell:
+    cmd: grep PASS_MAX_DAYS /etc/login.defs | grep -v \# | awk '{print $2;}'
+  ignore_errors: true
+  register: grep_output
+
+- name: Check PASS_MAX_DAYS whether is valid
+  set_fact:
+    is_pass_max_days_valid: true
+  when: grep_output.stdout == "90"
+  
+- name: Check PASS_MAX_DAYS whether is invalid
+  set_fact:
+    is_pass_max_days_valid: false
+  when: grep_output.stdout|length == 0 or grep_output.stdout != "90"
+
+###
+- name: Section 2-1 Password policy check - Read /etc/login.defs - PASS_MIN_LEN
+  shell:
+    cmd: grep PASS_MIN_LEN /etc/login.defs | grep -v \# | awk '{print $2;}'
+  ignore_errors: true
+  register: grep_output
+
+- name: Check PASS_MIN_LEN whether is valid
+  set_fact:
+    is_pass_min_len_valid: true
+  when: grep_output.stdout == "8"
+  
+- name: Check PASS_MIN_LEN whether is invalid
+  set_fact:
+    is_pass_min_len_valid: false
+  when: grep_output.stdout|length == 0 or grep_output.stdout != "8"
+
+###
+- name: Section 2-1 Password policy check - Read /etc/login.defs - PASS_WARN_AGE
+  shell:
+    cmd: grep PASS_WARN_AGE /etc/login.defs | grep -v \# | awk '{print $2;}'
+  ignore_errors: true
+  register: grep_output
+
+- name: Check PASS_WARN_AGE whether is valid
+  set_fact:
+    is_pass_warn_age_valid: true
+  when: grep_output.stdout == "15"
+  
+- name: Check PASS_WARN_AGE whether is invalid
+  set_fact:
+    is_pass_warn_age_valid: false
+  when: grep_output.stdout|length == 0 or grep_output.stdout != "15"
+
+# debug purpose
+# - debug:
+#     var: is_pass_max_days_valid
+
+# - debug:
+#     var: is_pass_min_len_valid
+
+# - debug:
+#     var: is_pass_warn_age_valid
+
+###
+- name: Set Section2_1 result
+  set_fact:
+    section2_1_result: "{{ is_pass_max_days_valid and is_pass_min_len_valid and is_pass_warn_age_valid }}"

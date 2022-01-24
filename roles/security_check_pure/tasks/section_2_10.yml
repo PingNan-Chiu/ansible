@@ -1,0 +1,41 @@
+---
+- name: Section 2-10 Admin login via ssh setting check.. (/etc/ssh/sshd_config) pre_task
+  set_fact:
+    section2_10_result: false
+
+- name: Checking telnet service status
+  set_fact:
+    section2_10_result: true
+  when: "'telnet@.service' not in ansible_facts.services"
+  
+- name: Check PermitRootLogin in sshd_config - pre_task
+  shell:
+    cmd: awk '/^PermitRootLogin/{print tolower($2);}' /etc/ssh/sshd_config
+  register: awk_result
+
+- name: Check PermitRootLogin in sshd_config
+  set_fact:
+    section2_10_result: "{{ section2_10_result and awk_result.stdout == 'yes' }}"
+    
+# 限制應用軟體管理帳號ssh遠端登入(如資料庫與應用程式伺服器管理帳號)。
+# 要禁止的使用者清單，是在 deny_users_str 變數裡。
+# deny_users_str 是字串
+- name: Check deny users
+  block:
+    - name: Split deny_users_str
+      set_fact:
+        deny_user_list: "{{ deny_users_str.split(',') }}" 
+        found_deny_user: false
+    - name: Read DenyUsers in sshd_config
+      shell:
+        cmd: awk '/^DenyUsers/{for (i=2;i<=NF; i++) {print $i}}' /etc/ssh/sshd_config
+      register: awk_result
+    - name: Check whether user is in DenyUsers
+      set_fact:
+        found_deny_user: "{{ found_deny_user and item in awk_result.stdout_lines }}"
+      loop: "{{ deny_user_list }}"
+    # - debug:
+    #     var: found_deny_user
+    - set_fact:
+        section2_10_result: "{{ section2_10_result and found_deny_user }}"
+  when: deny_users_str|length > 0

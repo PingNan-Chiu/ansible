@@ -1,0 +1,58 @@
+
+    # 用神奇的 awk / grep 做檔案比對
+    # https://www.jianshu.com/p/cf428138caab
+
+    - name: Get intersection between expected_accounts.txt and host_accounts.txt
+      shell:
+        cmd: "grep -F -f {{ expected_accounts }} {{ host_accounts }}"
+      register: intersection
+      ignore_errors: yes
+
+    - name: Get Subtraction between expected_accounts.txt and host_accounts.txt (New users)
+      shell:
+        cmd: "grep -F -v -f {{ host_accounts }} {{ expected_accounts }}"
+      register: subtraction_1
+      ignore_errors: yes
+      
+    # - name: Add new users
+    #   user:
+    #     name: "{{ item.name }}"
+    #     comment: "Test playbook"
+    #     state: present
+    #  with_items: 
+
+    - name: Get Subtraction between expected_accounts.txt and host_accounts.txt (1)
+      shell:
+        cmd: "grep -F -v -f {{ expected_accounts }} {{ host_accounts }}"
+      register: subtraction1
+      ignore_errors: yes
+
+    - name: Display intersection
+      debug:
+        var: intersection.stdout_lines
+
+    - name: Display subtration1
+      debug:
+        var: subtraction1.stdout_lines
+
+    - name: Display subtraction2
+      debug:
+        var: subtraction2.stdout_lines
+        
+    - name: Add 
+
+    # hostvars, groups, group_names
+    # 
+
+
+    - include_vars: 
+        file: "{{ expected_accounts }}"
+        name: expected
+        
+    - include_vars:
+        file: "{{ host_accounts }}"
+        name: actual
+        
+    - name: Display difference
+      debug:
+        msg: "{{ expected.accounts | difference(actual.accounts) }}"

@@ -1,0 +1,16 @@
+---
+- name: Section 2-8 pam_tally2 / pam_faillock setting check - pre_task
+  set_fact:
+    section2_8_result: false
+    
+- name: Section 2-8 pam_tally2 setting check in RHEL6
+  include_tasks: section_2_8_rhel6.yml
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "6"
+    
+- name: Section 2-8 pam_tally2 setting check in RHEL7
+  include_tasks: section_2_8_rhel6.yml
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+
+- name: Section 2-8 pam_faillock setting check in RHEL8
+  include_tasks: section_2_8_rhel8.yml
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "8"

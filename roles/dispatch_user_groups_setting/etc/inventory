@@ -1,0 +1,5 @@
+[hostGroup1]
+localhost ansible_connection=local
+
+[hostGroup2]
+localhost ansible_connection=local

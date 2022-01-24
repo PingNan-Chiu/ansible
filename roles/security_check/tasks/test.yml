@@ -1,0 +1,29 @@
+---
+- name: Test Security Check
+  hosts: all
+  become: yes
+
+  tasks:
+  - name: Make sure CK_RECORD is existed
+    file:
+      path: "/var/SP_management/security_ck/record"
+      state: directory
+
+  - name: Copy script to the remote system
+    copy:
+      src: files/security_ck_new.sh
+      dest: /tmp/security_ck_new.sh
+      owner: root
+      group: wheel
+      mode: 0755
+
+  - name: Run Security check
+    become: yes
+    shell:
+      cmd: "/tmp/security_ck_new.sh"
+      warn: false
+    register: security_log
+
+  - name: Security Log
+    debug:
+      msg: "{{ security_log.stdout }}"

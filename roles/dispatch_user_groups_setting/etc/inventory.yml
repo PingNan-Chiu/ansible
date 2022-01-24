@@ -1,0 +1,39 @@
+hostGroup1:
+  hosts:
+    satellite:
+      ansible_host: 10.11.23.237
+      ansible_user: automation
+  vars:
+    groups_:
+      - name: group1
+      - name: group2
+      - name: group3
+    accounts:
+      - name: user1
+        groups: group2, group3
+      - name: user4
+        groups: group1, group3
+      - name: user5
+        groups: group1, group2
+    excluded_accounts:
+      - automation
+hostGroup2:
+  hosts:
+    tower:
+      ansible_host: 10.11.23.229
+      ansible_user: automation
+  vars:
+    groups_:
+      - name: group5
+      - name: group9
+    accounts:
+      - name: user4
+        groups: group5
+      - name: user5
+        groups: group9
+      - name: user7
+        groups: group5
+    excluded_accounts:
+      - automation
+      - ldapuser01
+      - ldapuser02
