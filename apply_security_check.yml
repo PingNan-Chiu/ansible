@@ -1,0 +1,181 @@
+---
+- name: Fetch user/group list from gitlab
+  hosts: localhost
+  become: false
+
+  vars:
+    repo_scheme: 'http'
+    partial_repo_url: ""
+    gitlab_access_token_name: ""
+    gitlab_access_token: ""
+    repo_version: master
+
+  tasks:
+  - block:
+    - name: Generate gitlab repo
+      set_fact:
+        repo_url: "{{ repo_scheme }}://{{ gitlab_access_token_name }}:{{ gitlab_access_token }}@{{partial_repo_url}}"
+
+    - name: Remove folder 'files/'
+      file:
+        path: "files"
+        state: absent
+
+    - name: Fetch configuration
+      git:
+        repo: "{{ repo_url }}"
+        dest: "files"
+        version: "{{ repo_version }}"
+
+- name: Fetch user/group list from gitlab
+  hosts: all
+  become: true
+
+  vars:
+    form_no: 'N/A'
+    repo_version: master
+
+  pre_tasks:
+    - name: Display form no
+      debug:
+        var: form_no
+
+  tasks:
+    - name: Copy password-auth file 
+      template:
+        src: files/rhel6/password-auth
+        dest: /etc/pam.d/password-auth
+        owner: root
+        group: root
+        force: yes
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "6"
+    
+    - name: add date PrintMotd setting
+      lineinfile:
+        state: present
+        dest: /etc/pam.d/password-auth    
+        regexp: '^# Modified by Ansible Tower'
+        line: '# Modified by Ansible Tower on {{ ansible_date_time.iso8601 }}'
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "6"
+
+    - name: Copy password-auth file 
+      template:
+        src: files/rhel7/password-auth
+        dest: /etc/pam.d/password-auth
+        owner: root
+        group: root
+        force: yes
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+
+    - name: add date PrintMotd setting
+      lineinfile:
+        state: present
+        dest: /etc/pam.d/password-auth    
+        regexp: '^# Modified by Ansible Tower'
+        line: '# Modified by Ansible Tower on {{ ansible_date_time.iso8601 }}'
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+
+    - name: Copy password-auth file 
+      template:
+        src: files/rhel8/password-auth
+        dest: /etc/pam.d/password-auth
+        owner: root
+        group: root
+        force: yes
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "8"
+
+    - name: add date PrintMotd setting
+      lineinfile:
+        state: present
+        dest: /etc/pam.d/password-auth    
+        regexp: '^# Modified by Ansible Tower'
+        line: '# Modified by Ansible Tower on {{ ansible_date_time.iso8601 }}'
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "8"
+
+    - name: Copy system-auth file 
+      template:
+        src: files/rhel6/system-auth
+        dest: /etc/pam.d/system-auth
+        owner: root
+        group: root
+        force: yes
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "6"
+
+    - name: add date PrintMotd setting
+      lineinfile:
+        state: present
+        dest: /etc/pam.d/system-auth    
+        regexp: '^# Modified by Ansible Tower'
+        line: '# Modified by Ansible Tower on {{ ansible_date_time.iso8601 }}'
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "6"
+
+    - name: Copy system-auth file 
+      template:
+        src: files/rhel7/system-auth
+        dest: /etc/pam.d/system-auth
+        owner: root
+        group: root
+        force: yes
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+
+    - name: add date PrintMotd setting
+      lineinfile:
+        state: present
+        dest: /etc/pam.d/system-auth    
+        regexp: '^# Modified by Ansible Tower'
+        line: '# Modified by Ansible Tower on {{ ansible_date_time.iso8601 }}'
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"      
+
+    - name: Copy system-auth file 
+      template:
+        src: files/rhel8/system-auth
+        dest: /etc/pam.d/system-auth
+        owner: root
+        group: root
+        force: yes
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "8"
+
+    - name: add date PrintMotd setting
+      lineinfile:
+        state: present
+        dest: /etc/pam.d/system-auth    
+        regexp: '^# Modified by Ansible Tower'
+        line: '# Modified by Ansible Tower on {{ ansible_date_time.iso8601 }}'
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "8"
+
+    - name: change PermitRootLogin setting
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: PermitRootLogin no
+
+    - name: change PrintMotd setting
+      lineinfile:
+        state: present
+        dest: /etc/ssh/sshd_config    
+        regexp: '^PrintMotd'
+        line: '#PrintMotd yes'
+      tags:
+        - change_PrintMotd_setting
+
+    - name: change DenyUsers setting
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^DenyUsers '
+        insertafter: '^# ForceCommand cvs server'
+        line: 'DenyUsers jboss'
+
+    - name: add date comment
+      lineinfile:
+        state: present
+        dest: /etc/ssh/sshd_config
+        regexp: '^# Modified by Ansible Tower'
+        line: '# Modified by Ansible Tower on {{ ansible_date_time.iso8601 }}'
+
+    - name: restart sshd service
+      service:
+        name: sshd
+        state: restarted
+        enabled: yes
+
+# Modified by Ansible Tower on {{ ansible_date_time }}

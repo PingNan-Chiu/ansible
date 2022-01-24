@@ -1,0 +1,36 @@
+---
+- name: replace sshd_config
+  hosts: all
+  gather_facts: false
+  tasks:  
+  - name: change PermitRootLogin setting
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^PermitRootLogin'
+      line: PermitRootLogin no
+
+  - name: change PrintMotd setting
+    lineinfile:
+      state: present
+      dest: /etc/ssh/sshd_config    
+      regexp: '^PrintMotd'
+      line: '#PrintMotd yes'
+    tags:
+      - change_PrintMotd_setting
+
+  - name: change DenyUsers setting
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^DenyUsers '
+      insertafter: '^# ForceCommand cvs server'
+      line: 'DenyUsers jboss'
+
+  - name: restart sshd service
+    service:
+      name: sshd
+      state: restarted
+      enabled: yes
+
+
+
+

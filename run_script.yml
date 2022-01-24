@@ -1,0 +1,12 @@
+---
+- name: Run Script
+  hosts: all
+  vars:
+    script_file: ""
+    use_fetch_report: "directory_find" # directory_find or script_output
+    src_report_path: /var/monitor_disk
+    src_report_patterns: "*.{{ ansible_hostname }}"
+    src_report_regex: '(/.*)\r'
+    src_report_regex_index: '\1'
+  roles:
+  - run_script

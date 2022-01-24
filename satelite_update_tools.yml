@@ -1,0 +1,25 @@
+---
+- name: Update satellite tools
+  hosts: all
+  become: yes 
+  vars:
+    disable_tool: satellite-tools-6.7-for-rhel-8-x86_64-rpms
+    enable_tool: satellite-tools-6.9-for-rhel-8-x86_64-rpms
+
+  tasks:
+  - name: Disable satellite tools 6.7
+    rhsm_repository:
+      name: "{{ disable_tool }}"
+      state: disabled
+
+  - name: Enable satellite tools 6.9
+    rhsm_repository:
+      name: "{{ enable_tool }}"
+      state: enabled
+
+  - name: yum install katello-agent
+    yum:
+      name: katello-agent
+      state: present
+      disablerepo: "*"
+      enablerepo: "{{ enable_tool }}"

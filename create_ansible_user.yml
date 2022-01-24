@@ -1,0 +1,35 @@
+---
+- name: Create 'ansible' user for Ansible Tower
+  hosts: all
+  gather_facts: false
+
+  vars:
+    cathay_ansible_user:
+      uid: 3099
+      name: ansible
+
+  vars_files:
+    - 'secrets/ansible-secret.yml'
+
+  tasks:
+    - name: Create user using 'raw'
+      raw: sudo -H LANG=C /usr/sbin/useradd -u {{ cathay_ansible_user.uid }} -m {{ cathay_ansible_user.name }}
+      register: useradd_result
+      ignore_errors: true
+
+    - block:
+      - name: Set password for 'ansible'
+        raw: echo '{{ password }}' | sudo -H LANG=C passwd {{ cathay_ansible_user.name }} --stdin
+
+      - name: Change user password maxdays
+        raw: "sudo /usr/bin/chage -M -1 {{ cathay_ansible_user.name }}"
+
+      - name: Make 'ansible' as sudoer
+        raw: echo 'ansible ALL=(ALL) ALL' | sudo -H LANG=C tee /etc/sudoers.d/{{ cathay_ansible_user.name }}
+      when: "'already exists' not in useradd_result.stdout"
+
+    - name: Display already existed
+      debug:
+        msg: useradd_result.stdout
+      when: "'already exists' in useradd_result.stdout"
+

@@ -1,0 +1,36 @@
+---
+- name: Update packages by specified CVE / Advisory
+  hosts: all
+
+  vars_prompt:
+    - name: form_no
+      prompt: "E-Form NO"
+      default: ''
+      private: false
+    
+    - name: cve_id
+      prompt: "CVE ID"
+      default: ''
+      private: false
+
+    - name: advisory_id
+      prompt: "Advisory ID"
+      default: ''
+      private: false
+
+  tasks:
+    - name: Display Form No
+      debug:
+        var: form_no
+
+    - name: Install CVE
+      shell:
+        cmd: "yum update -y --cve '{{cve_id}}'"
+        warn: false
+      when: (cve_id is defined) and (cve_id|length > 0)
+
+    - name: Install Advisory
+      shell:
+        cmd: "yum update -y --advisory '{{advisory_id}}'"
+        warn: false
+      when: (advisory_id is defined) and (advisory_id|length > 0)

@@ -1,0 +1,19 @@
+---
+- name: Get hostname and run ls using shell
+  hosts: all
+
+  tasks:
+    - name: Get hostname
+      command: hostname
+      register: hostname_result
+
+    - debug:
+        msg: "hostname={{ hostname_result.stdout }}"
+
+    - name: Run ls
+      shell: ls /tmp | head -n 1
+      register: ls_result
+
+    - debug:
+        msg: "ls /tmp={{ ls_result.stdout }}"
+

@@ -1,0 +1,67 @@
+---
+- name: Security Check
+  hosts: all
+  become: yes
+
+  vars:
+    form_no: "N/A"
+    do_fetch: false
+    do_ftp: true
+    # 在 security_check_pure 這個 role 裡已經有定義 security_report_location，預設值是 /tmp
+    # security_report_location: "/tmp"
+    
+    # 安全檢核表報告上傳資訊
+    # FTP 主機
+    #security_report_ftp_host: ""
+    # FTP 使用者帳號
+    #security_report_ftp_user: ""
+    # FTP 使用者密碼
+    #security_report_ftp_password: ""
+    # FTP 主機上的路徑，需為完整目錄
+    #security_report_destination_path: ""
+    # division_name 是定義為 inventory 裡的 group variable
+    # 所以記得要在 inventory 那邊去定義 group variable
+    # division_name: ""
+
+  roles:
+    - security_check_pure
+
+  pre_tasks:
+    - name: Display form no
+      debug:
+        msg: "Form No: {{ form_no }}"
+
+  tasks:
+    # - debug:
+    #     msg: 'curl --ftp-create-dirs -T "{{ security_report_location }}/security_report_{{ inventory_hostname }}.html" ftp://{{ security_report_ftp_user }}:{{ security_report_ftp_password }}@{{ security_report_ftp_host }}/{{ security_report_destination_path }}/{{ division_name }}/'
+
+    # 產生亂數
+    - set_fact:
+        r: "{{ 3 | random }}"
+        
+    - block:
+      - debug:
+          msg: "Wait for {{ r }} seconds"
+
+      # 稍微等一下，避免過於擁擠
+      - wait_for:
+          timeout: "{{ r|int }}"
+      when: "r|int > 0"
+
+    # 使用 curl 進行 FTP 上傳
+    - name: Upload security report to FTP
+      shell:
+        cmd: |
+          curl --ftp-create-dirs -T "{{ security_report_location }}/security_report_{{ inventory_hostname }}.html" --user {{ security_report_ftp_user }}:{{ security_report_ftp_password }} ftp://{{ security_report_ftp_host }}/{{ security_report_destination_path }}/{{ division_name }}/
+        warn: false
+      register: ftp_output
+      when: do_ftp
+      
+    # - debug:
+    #     var: ftp_output
+
+    - name: Fetch security log
+      fetch:
+        src: "{{ security_report_location }}/security_report_{{ inventory_hostname }}.html"
+        dest: "logs/security_report"
+      when: do_fetch

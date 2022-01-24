@@ -1,0 +1,65 @@
+---
+- name: Modify fstab
+  hosts: all
+  become: true
+
+  vars:
+    # fstab_location: /tmp/fstab
+    fstab_location: /etc/fstab
+    do_remount: true
+
+  tasks:
+    # - copy:
+    #     src: fstab
+    #     dest: "{{ fstab_location }}"
+
+    - name: Backup fstab
+      shell: "cp {{ fstab_location }} {{ fstab_location }}.{{ ansible_date_time.iso8601_basic_short }}"
+
+    - name: Replace defaults with new mount options for /tmp
+      lineinfile:
+        path: "{{ fstab_location }}"
+        regexp: '^(.*) /tmp (.*) defaults (.*) (.*)'
+        line: '\1 /tmp \2 rw,nosuid,nodev,noexec,auto,nouser,async,relatime \3 \4'
+        backrefs: yes
+
+    - name: Replace defaults with new mount options for /dev/shm
+      lineinfile:
+        path: "{{ fstab_location }}"
+        regexp: '^(.*) /dev/shm (.*) defaults (.*) (.*)'
+        line: '\1 /dev/shm \2 rw,nosuid,nodev,noexec,auto,nouser,async,relatime \3 \4'
+        backrefs: yes
+
+    - name: Replace defaults with new mount options for /var/tmp
+      lineinfile:
+        path: "{{ fstab_location }}"
+        regexp: '^(.*) /var/tmp (.*) defaults (.*) (.*)'
+        line: '\1 /var/tmp \2 rw,nosuid,nodev,noexec,auto,nouser,async,relatime \3 \4'
+        backrefs: yes
+
+    - block:
+
+      - name: Get mounts
+        shell: |
+          cat /etc/mtab | awk -F\  '{ print $2; }'
+        register: shell_result
+
+      - name: remount /tmp
+        mount:
+          path: /tmp
+          opts: rw,nosuid,nodev,noexec,auto,nouser,async,relatime
+          state: remounted
+        when: "'/tmp' in shell_result.stdout_lines"
+      - name: remount /var/tmp
+        mount:
+          path: /var/tmp
+          opts: rw,nosuid,nodev,noexec,auto,nouser,async,relatime
+          state: remounted
+        when: "'/var/tmp' in shell_result.stdout_lines"
+      - name: remount /dev/shm
+        mount:
+          path: /dev/shm
+          opts: rw,nosuid,nodev,noexec,auto,nouser,async,relatime
+          state: remounted
+        when: "'/dev/shm' in shell_result.stdout_lines"
+      when: do_remount

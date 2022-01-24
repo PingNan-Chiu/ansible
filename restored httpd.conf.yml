@@ -1,0 +1,16 @@
+---
+- name: restored httpd.conf file
+  hosts: all
+  tasks:
+  - name: restored file to /etc/httpd/conf/httpd.conf
+    copy:
+      remote_src: yes
+      src: /home/httpd/httpd.conf
+      dest: /etc/httpd/conf/httpd.conf
+      follow: yes
+
+  - name: restart httpd service
+    service:
+      name: httpd
+      state: restarted
+      enabled: yes

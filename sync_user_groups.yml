@@ -1,0 +1,54 @@
+---
+- name: Fetch user/group list from gitlab
+  hosts: localhost
+  become: false
+
+  vars:
+    repo_scheme: 'http'
+    partial_repo_url: ""
+    gitlab_access_token_name: ""
+    gitlab_access_token: ""
+    user_group_list_version: master
+
+  tasks:
+    - block:
+      - name: Generate gitlab repo
+        set_fact:
+          user_group_list_repo: "{{ repo_scheme }}://{{ gitlab_access_token_name }}:{{ gitlab_access_token }}@{{partial_repo_url}}"
+      - name: Remove folder 'group_vars/'
+        file:
+          path: "group_vars"
+          state: absent
+      - name: Fetch user/group list
+        git:
+          repo: "{{ user_group_list_repo }}"
+          dest: "group_vars"
+          version: "{{ user_group_list_version }}"
+
+- name: Sync users/groups
+  hosts: all
+  become: true
+
+  vars:
+    form_no: 'N/A'
+    user_group_list_version: master
+    is_debug: false
+
+  pre_tasks:
+    - name: Display form no
+      debug:
+        var: form_no
+    - block:
+      - debug:
+          var: accounts
+      - debug:
+          var: groups_
+      - debug:
+          var: excluded_accounts
+      - debug:
+          var: excluded_groups_
+      when: is_debug
+
+  roles:
+    - dispatch_user_groups_setting
+

@@ -1,0 +1,96 @@
+---
+- name: Fetch shell script from gitlab
+  hosts: localhost
+  become: false
+
+  vars:
+    repo_scheme: 'http'
+    partial_repo_url: ""
+    gitlab_access_token_name: ""
+    gitlab_access_token: ""
+    repo_version: master
+
+  tasks:
+    - block:
+      - name: Display hostname
+        debug:
+          var: ansible_hostname
+
+      - name: Display IP Address
+        debug:
+          var: ansible_default_ipv4.address
+
+      - name: Generate gitlab repo
+        set_fact:
+          repo_url: "{{ repo_scheme }}://{{ gitlab_access_token_name }}:{{ gitlab_access_token }}@{{partial_repo_url}}"
+      - name: Remove folder 'files/'
+        file:
+          path: "files"
+          state: absent
+      - name: Fetch shell scripts
+        git:
+          repo: "{{ repo_url }}"
+          dest: "files"
+          version: "{{ repo_version }}"
+
+- name: Deploy and execute shell script
+  hosts: all
+  become: true
+
+  vars_prompt:
+    - name: form_no
+      prompt: "E-Form NO"
+      default: "N/A"
+      private: false
+    - name: script_name
+      prompt: "Script name"
+      private: false
+    - name: destination_path
+      prompt: "The location to store script"
+      default: "/tmp"
+      private: false
+    - name: arguments
+      prompt: "The arguments for script"
+      default: ""
+      private: false
+    - name: shell_user
+      prompt: "Who execute the script"
+      private: false
+      
+  pre_tasks:
+    - name: Display form no
+      debug:
+        var: form_no
+
+  tasks:
+    - set_fact:
+        remote_script_path: "{{ destination_path }}/{{ script_name }}"
+
+    - name: Get destination path dirname
+      shell:
+        cmd: |
+          dirname "{{ remote_script_path }}"
+      register: dirname_result
+
+    - name: Create necessary folder
+      file:
+        path: "{{ dirname_result.stdout }}"
+        state: directory
+      when: "dirname_result|length > 0"
+
+    - name: Copy script to remote
+      copy:
+        src: "files/{{ script_name }}"
+        dest: "{{ remote_script_path }}"
+        mode: 0755
+
+    - name: Execute script
+      shell:
+        cmd: "{{ remote_script_path }} {{ arguments }}"
+      become_user: "{{ shell_user }}"
+      register: cmd_result
+
+    - name: Display script output
+      debug:
+        var: cmd_result.stdout
+

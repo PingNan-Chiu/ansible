@@ -1,0 +1,34 @@
+---
+- name: Add or Remove account
+  hosts: all
+
+  vars:
+    username: ''
+    password: ''
+    uid: ''
+    gid: ''
+    attach_groups: ''
+  
+  tasks:
+  - name: add group
+    group:
+      name:  "{{ item }}"
+      gid: "{{ gid }}"
+      state: present
+    loop: "{{ attach_groups.split(',') }}"
+      
+  - name: add user demouser
+    user:
+      name: "{{ username }}"
+      uid: "{{ uid }}"
+      password: "{{ password | password_hash('sha512') }}"
+      groups: "{{ attach_groups.split(',') }}"
+      state: present
+    when: action == 'add' 
+
+  - name: remove the user 
+    user:
+      name: "{{ username }}"
+      state: absent
+      remove: yes
+    when: action == 'remove'

@@ -1,0 +1,10 @@
+- name: Install/Remove packages by specified package name
+  hosts: all
+
+  vars:
+    packages: ''
+    action: ''
+    rollback: no
+
+  roles:
+    - pkgmaintenance
